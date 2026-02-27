@@ -1,6 +1,21 @@
 import jwt from "jsonwebtoken";
 
 export default function handler(req, res) {
+
+  // CORS HEADERS
+  res.setHeader("Access-Control-Allow-Origin", "https://prinstbyweb.wuaze.com");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Responder preflight
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+
   const key = process.env.PIXLR_KEY;
   const secret = process.env.PIXLR_SECRET;
 
@@ -9,15 +24,11 @@ export default function handler(req, res) {
   }
 
   const payload = {
-    sub: key,
-    mode: "http",
-    openUrl: "https://raw.githubusercontent.com/vianastephania-alt/printsbyweb-api/main/api/blank.png",
-    saveUrl: "https://printsbyweb-api.vercel.app/api/save"
+    iss: key,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60)
   };
 
-  const token = jwt.sign(payload, secret, {
-    expiresIn: "1h"
-  });
+  const token = jwt.sign(payload, secret);
 
-  return res.status(200).json({ token });
+  res.status(200).json({ token });
 }
