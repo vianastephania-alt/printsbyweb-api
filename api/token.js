@@ -1,3 +1,4 @@
 export default function handler(req, res) {
-  res.status(200).json({ status: "ok" });
+  const token = "token-de-prueba-123";
+  res.status(200).json({ token });
 }
